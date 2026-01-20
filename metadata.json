@@ -1,0 +1,7 @@
+{
+  "name": "Fosol Setu - Farmer Portal",
+  "description": "Functional demo app for Bangladeshi farmers to manage harvests, access pre-investment funds, and get AI-driven agricultural advice.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
