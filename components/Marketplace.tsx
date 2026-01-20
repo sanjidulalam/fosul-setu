@@ -5,124 +5,109 @@ import { AppLanguage, AppRole } from '../types';
 
 const Marketplace: React.FC<{ lang: AppLanguage, role: AppRole }> = ({ lang, role }) => {
   const t = translations[lang];
-  const [filter, setFilter] = useState('Rice');
+  const [filter, setFilter] = useState('All');
 
-  const buyerProducts = [
-    { 
-      id: 1, 
-      name: lang === 'bn' ? 'মিনিকেট চাল' : 'Miniket Rice', 
-      price: 68.50, 
-      qty: '2.5 Ton', 
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600',
-      location: 'Dinajpur',
-      category: 'Rice'
-    },
-    { 
-      id: 2, 
-      name: lang === 'bn' ? 'লাল আলু' : 'Red Potato', 
-      price: 24.00, 
-      qty: '800 KG', 
-      image: 'https://images.unsplash.com/photo-1518977676601-b53f02bad675?auto=format&fit=crop&q=80&w=600',
-      location: 'Munshiganj',
-      category: 'Veg'
-    },
-    { 
-      id: 3, 
-      name: lang === 'bn' ? 'বাসমতি চাল' : 'Basmati Rice', 
-      price: 115.00, 
-      qty: '1.2 Ton', 
-      image: 'https://images.unsplash.com/photo-1590333746438-2834505413b6?auto=format&fit=crop&q=80&w=600',
-      location: 'Naogaon',
-      category: 'Rice'
-    },
-    { 
-      id: 4, 
-      name: lang === 'bn' ? 'নাজিরশাইল চাল' : 'Nazirshail Rice', 
-      price: 72.00, 
-      qty: '3.0 Ton', 
-      image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&q=80&w=600',
-      location: 'Mymensingh',
-      category: 'Rice'
-    }
-  ];
-
-  const getHeading = () => {
-    if (role === 'buyer') return lang === 'bn' ? 'সরাসরি সংগ্রহ' : 'Direct Sourcing';
-    if (role === 'seller') return lang === 'bn' ? 'উপকরণ তালিকা' : 'Manage Inputs';
-    return lang === 'bn' ? 'সরাসরি বাজার' : 'Direct Market';
+  const products = {
+    buyer: [
+      { id: 1, name: lang === 'bn' ? 'মিনিকেট চাল' : 'Miniket Rice', price: 68, qty: '2.5 Ton', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600', location: 'Dinajpur', category: 'Rice' },
+      { id: 2, name: lang === 'bn' ? 'লাল আলু' : 'Red Potato', price: 24, qty: '800 KG', image: 'https://images.unsplash.com/photo-1518977676601-b53f02bad675?auto=format&fit=crop&q=80&w=600', location: 'Munshiganj', category: 'Veg' }
+    ],
+    seller: [
+      { id: 101, name: lang === 'bn' ? 'হাইব্রিড বীজ' : 'Hybrid Seeds', price: 350, stock: '45 Pkts', image: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=600', category: 'Seeds' },
+      { id: 102, name: lang === 'bn' ? 'জৈব সার' : 'Organic Fertilizer', price: 1200, stock: '12 Bags', image: 'https://images.unsplash.com/photo-1558449028-b53a39d100fc?auto=format&fit=crop&q=80&w=600', category: 'Fertilizer' }
+    ]
   };
 
-  const categories = ['Rice', 'Veg', 'Seeds', 'All'];
+  const categories = role === 'seller' ? ['All', 'Seeds', 'Fertilizer', 'Tools'] : ['All', 'Rice', 'Veg', 'Grain'];
 
   return (
     <div className="space-y-6 animate-in slide-in-from-right duration-300 pb-10">
       <div className="flex justify-between items-center px-1">
         <div>
-          <h2 className="text-xl font-black text-slate-900">{getHeading()}</h2>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{lang === 'bn' ? 'কৃষকের সাথে সরাসরি' : 'Deal Directly with Farmers'}</p>
+          <h2 className="text-2xl font-black text-slate-900">
+            {role === 'seller' ? (lang === 'bn' ? 'ইনভেন্টরি' : 'Inventory') : (lang === 'bn' ? 'সরাসরি বাজার' : 'Fosol Market')}
+          </h2>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            {role === 'seller' ? 'Update your input availability' : 'Connecting you to original farms'}
+          </p>
         </div>
-        <button className="bg-green-600 text-white px-5 py-3 rounded-2xl text-[11px] font-black shadow-xl shadow-green-100 uppercase tracking-wider active:scale-95 transition-all">
-          {role === 'farmer' ? (lang === 'bn' ? '+ ফসল বিক্রি' : '+ Sell Crop') : (lang === 'bn' ? 'নতুন অফার' : 'New Offers')}
+        <button className={`p-4 rounded-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center text-white ${role === 'seller' ? 'bg-purple-600 shadow-purple-200' : 'bg-green-600 shadow-green-200'}`}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" /></svg>
         </button>
       </div>
 
-      {role === 'buyer' && (
-        <div className="flex gap-2 overflow-x-auto pb-4 -mx-1 px-1 no-scrollbar">
-          {categories.map(c => (
-            <button 
-              key={c}
-              onClick={() => setFilter(c)}
-              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black border-2 whitespace-nowrap transition-all shadow-sm ${
-                filter === c ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'
-              }`}
-            >
-              {c === 'All' ? (lang === 'bn' ? 'সব দেখুন' : 'View All') : c}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+        {categories.map(c => (
+          <button 
+            key={c}
+            onClick={() => setFilter(c)}
+            className={`px-6 py-2.5 rounded-2xl text-[10px] font-black border-2 whitespace-nowrap transition-all ${
+              filter === c ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300 shadow-sm'
+            }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
 
-      {role === 'buyer' ? (
-        <div className="grid grid-cols-1 gap-6">
-          {buyerProducts.filter(p => filter === 'All' || p.category === filter).map(product => (
-            <BuyerCard key={product.id} product={product} lang={lang} t={t} />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {role === 'seller' ? (
-            <>
-              <MarketCard name={lang === 'bn' ? 'হাইব্রিড বীজ' : 'Hybrid Seeds'} qty="200 Pkts" bid="৳350/Pkt" buyers={0} />
-              <MarketCard name={lang === 'bn' ? 'জৈব সার' : 'Organic Fertilizer'} qty="50 Bags" bid="৳1200/Bag" buyers={0} />
-            </>
-          ) : (
-            <>
-              <MarketCard name={lang === 'bn' ? 'বালাম চাল' : 'Balam Rice'} qty="500 KG" bid="৳45.50/KG" buyers={12} />
-              <MarketCard name={lang === 'bn' ? 'প্রিমিয়াম পাট' : 'Premium Jute'} qty="1.2 Ton" bid="৳88.00/KG" buyers={5} />
-            </>
-          )}
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-6">
+        {role === 'seller' ? (
+          products.seller.filter(p => filter === 'All' || p.category === filter).map(item => (
+            <SellerInventoryCard key={item.id} item={item} lang={lang} />
+          ))
+        ) : (
+          products.buyer.filter(p => filter === 'All' || p.category === filter).map(product => (
+            <BuyerMarketCard key={product.id} product={product} lang={lang} t={t} />
+          ))
+        )}
+      </div>
     </div>
   );
 };
 
-const BuyerCard: React.FC<{ product: any, lang: AppLanguage, t: any }> = ({ product, lang, t }) => {
-  const [bid, setBid] = useState(product.price + 2);
+const SellerInventoryCard = ({ item, lang }: { item: any, lang: AppLanguage }) => (
+  <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm flex flex-col group hover:shadow-lg transition-all">
+    <div className="relative aspect-[16/8] overflow-hidden">
+      <img src={item.image} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+      <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
+      <div className="absolute top-5 left-5 bg-purple-600 text-white px-3 py-1.5 rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-lg">
+        {item.category}
+      </div>
+    </div>
+    <div className="p-6 -mt-10 relative z-10 space-y-4">
+      <div className="flex justify-between items-end">
+        <div>
+          <h4 className="font-black text-slate-900 text-xl">{item.name}</h4>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Stock: <span className="text-purple-600">{item.stock}</span></p>
+        </div>
+        <div className="text-right">
+          <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Price</p>
+          <p className="text-2xl font-black text-slate-900">৳{item.price}</p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button className="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Quick Update</button>
+        <button className="px-5 bg-slate-100 text-slate-400 py-4 rounded-2xl active:scale-95 transition-all hover:bg-red-50 hover:text-red-500">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
+const BuyerMarketCard = ({ product, lang, t }: { product: any, lang: AppLanguage, t: any }) => {
+  const [bid, setBid] = useState(product.price + 2);
   return (
-    <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-2xl shadow-slate-200/50 flex flex-col group">
+    <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-lg flex flex-col group hover:shadow-2xl transition-all duration-500">
       <div className="relative aspect-[16/10] overflow-hidden">
-        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-        <div className="absolute top-5 left-5 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl text-[10px] font-black text-green-600 flex items-center gap-1.5 shadow-lg">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
+        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+        <div className="absolute top-5 left-5 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-2xl text-[9px] font-black text-green-600 flex items-center gap-1.5 shadow-lg uppercase tracking-widest">
           {t.certified}
         </div>
-        <div className="absolute bottom-5 right-5 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-2xl text-[10px] font-black text-white tracking-widest uppercase">
+        <div className="absolute bottom-5 right-5 bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-2xl text-[9px] font-black text-white tracking-widest uppercase">
           {product.location}
         </div>
       </div>
-      
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-start">
           <div>
@@ -130,61 +115,24 @@ const BuyerCard: React.FC<{ product: any, lang: AppLanguage, t: any }> = ({ prod
             <p className="text-[11px] text-slate-400 font-black uppercase tracking-wider">{t.bulkAvailable}: <span className="text-slate-900">{product.qty}</span></p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-slate-400 font-black uppercase tracking-tighter mb-1">{lang === 'bn' ? 'বর্তমান মূল্য' : 'Base Price / KG'}</p>
-            <p className="text-2xl font-black text-green-600 leading-none">৳{product.price}</p>
+            <p className="text-[10px] text-slate-400 font-black uppercase tracking-tighter mb-1">Current Base</p>
+            <p className="text-2xl font-black text-blue-600">৳{product.price}</p>
           </div>
         </div>
-
         <div className="bg-slate-50 p-5 rounded-3xl space-y-3">
            <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400">
-             <span>{t.enterBid}</span>
-             <span className="text-slate-900 text-sm">৳{bid.toFixed(2)}</span>
+             <span>Your Offer / KG</span>
+             <span className="text-slate-900 text-sm font-black bg-white px-3 py-1 rounded-xl shadow-sm animate-pulse">৳{bid.toFixed(2)}</span>
            </div>
-           <input 
-              type="range" 
-              min={product.price} 
-              max={product.price + 20} 
-              step="0.5"
-              value={bid}
-              onChange={(e) => setBid(parseFloat(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-green-600"
-           />
+           <input type="range" min={product.price} max={product.price + 20} step="0.5" value={bid} onChange={(e) => setBid(parseFloat(e.target.value))} className="w-full h-2 rounded-full appearance-none cursor-pointer accent-blue-600" />
         </div>
-
         <div className="grid grid-cols-2 gap-3">
-          <button className="bg-slate-100 text-slate-900 py-4 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-colors">
-            {t.placeBid}
-          </button>
-          <button className="bg-green-600 text-white py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-green-200 hover:bg-green-700 active:scale-95 transition-all">
-            {t.buyNow}
-          </button>
+          <button className="bg-slate-100 text-slate-900 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all hover:bg-slate-200">Submit Bid</button>
+          <button className="bg-blue-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-100 active:scale-95 transition-all hover:bg-blue-700">Buy Now</button>
         </div>
       </div>
     </div>
   );
 };
-
-const MarketCard: React.FC<{ name: string; qty: string; bid: string; buyers: number }> = ({ name, qty, bid, buyers }) => (
-  <div className="bg-white rounded-[2rem] border border-slate-100 overflow-hidden shadow-sm">
-    <div className="p-5 flex justify-between items-start">
-      <div>
-        <h4 className="font-black text-slate-900 text-lg">{name}</h4>
-        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{qty}</p>
-      </div>
-      {buyers > 0 && (
-        <div className="bg-green-50 px-3 py-1.5 rounded-xl text-[9px] font-black text-green-600 uppercase tracking-wider">
-          {buyers} Active Bids
-        </div>
-      )}
-    </div>
-    <div className="px-5 py-4 bg-slate-50 border-t border-slate-100/50 flex justify-between items-center">
-      <div>
-        <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-0.5">Price Target</p>
-        <p className="text-base font-black text-green-600">{bid}</p>
-      </div>
-      <button className="text-[10px] font-black text-slate-900 uppercase tracking-widest underline decoration-2 underline-offset-4">Manage</button>
-    </div>
-  </div>
-);
 
 export default Marketplace;
