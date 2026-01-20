@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { translations } from '../translations';
@@ -32,23 +33,13 @@ const AgriAI: React.FC<{ lang: AppLanguage }> = ({ lang }) => {
     if (!input.trim() || loading) return;
 
     const userMsg = input;
-    const apiKey = (window as any).process?.env?.API_KEY;
-    
-    if (!apiKey) {
-      setMessages(prev => [...prev, 
-        { role: 'user', text: userMsg },
-        { role: 'ai', text: lang === 'bn' ? 'দুঃখিত, এপিআই কি খুঁজে পাওয়া যায়নি।' : 'Sorry, API Key not configured.' }
-      ]);
-      setInput('');
-      return;
-    }
-
     setInput('');
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
+      // Using named parameter for apiKey as required by guidelines
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: userMsg,
@@ -58,25 +49,26 @@ const AgriAI: React.FC<{ lang: AppLanguage }> = ({ lang }) => {
         }
       });
 
+      // Accessing response.text as a property, not a method
       const aiText = response.text || (lang === 'bn' ? "দুঃখিত, আমি উত্তর দিতে পারছি না।" : "I'm sorry, I couldn't process that.");
       setMessages(prev => [...prev, { role: 'ai', text: aiText }]);
     } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, { role: 'ai', text: lang === 'bn' ? "সংযোগ ত্রুটি।" : "Connection error." }]);
+      console.error('Gemini API Error:', error);
+      setMessages(prev => [...prev, { role: 'ai', text: lang === 'bn' ? "দুঃখিত, বর্তমানে সংযোগে সমস্যা হচ্ছে।" : "Sorry, there is a connection issue right now." }]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] animate-in zoom-in-95 duration-300">
+    <div className="flex flex-col h-[calc(100vh-14rem)] animate-in zoom-in-95 duration-300">
       <div className="flex-1 overflow-y-auto space-y-4 p-2 no-scrollbar" ref={scrollRef}>
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
               m.role === 'user' 
-                ? 'bg-green-600 text-white rounded-tr-none' 
-                : 'bg-white border border-slate-200 text-slate-800 shadow-sm rounded-tl-none'
+                ? 'bg-green-600 text-white rounded-tr-none shadow-md' 
+                : 'bg-white border border-slate-100 text-slate-800 shadow-sm rounded-tl-none'
             }`}>
               {m.text}
             </div>
@@ -84,25 +76,25 @@ const AgriAI: React.FC<{ lang: AppLanguage }> = ({ lang }) => {
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none">
-              <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce delay-100"></div>
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce delay-200"></div>
+            <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm">
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-green-300 rounded-full animate-bounce delay-200"></div>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex gap-2 pb-4">
         <input 
           type="text" 
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           placeholder={t.askAI}
-          className="flex-1 bg-white border border-slate-200 px-4 py-4 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-green-500/10 shadow-sm transition-all"
+          className="flex-1 bg-white border border-slate-200 px-5 py-4 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-green-500/10 shadow-sm transition-all"
         />
         <button 
           onClick={handleSend}
